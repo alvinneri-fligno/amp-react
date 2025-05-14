@@ -16,7 +16,7 @@ import "@aws-amplify/ui-react/styles.css";
 import { getUrl } from "aws-amplify/storage";
 import { uploadData } from "aws-amplify/storage";
 import { generateClient } from "aws-amplify/data";
-import outputs from "./amplify_outputs.json";
+import outputs from "../amplify_outputs.json";
 /**
  * @type {import('aws-amplify/data').Client<import('../amplify/data/resource').Schema>}
  */
@@ -29,27 +29,32 @@ const client = generateClient({
 export default function App() {
   const [notes, setNotes] = useState([]);
 
+  async function fetchNotes() {
+    try {
+      const { data: notes } = await client.models.Note.list();
+
+      await Promise.all(
+        notes.map(async (note) => {
+          if (note.image) {
+            const linkToStorageFile = await getUrl({
+              path: ({ identityId }) => `media/${identityId}/${note.image}`,
+            });
+            console.log(linkToStorageFile.url);
+            note.image = linkToStorageFile.url;
+          }
+          return note;
+        })
+      );
+      console.log(notes, "notes");
+      setNotes(notes);
+    } catch (error) {
+      console.log(error, "error");
+    }
+  }
+
   useEffect(() => {
     fetchNotes();
   }, []);
-
-  async function fetchNotes() {
-    const { data: notes } = await client.models.Note.list();
-    await Promise.all(
-      notes.map(async (note) => {
-        if (note.image) {
-          const linkToStorageFile = await getUrl({
-            path: ({ identityId }) => `media/${identityId}/${note.image}`,
-          });
-          console.log(linkToStorageFile.url);
-          note.image = linkToStorageFile.url;
-        }
-        return note;
-      })
-    );
-    console.log(notes);
-    setNotes(notes);
-  }
 
   async function createNote(event) {
     event.preventDefault();
