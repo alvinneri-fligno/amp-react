@@ -13,6 +13,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 
 interface User {
   username: string;
@@ -27,6 +28,7 @@ interface User {
 interface UsersTableProps {
   users: User[];
   onDeleteUser: (user: User) => void;
+  onEditUser: (user: User) => void;
 }
 
 const capitalizeWords = (str: string) => {
@@ -37,6 +39,7 @@ const capitalizeWords = (str: string) => {
 export const UsersTable: React.FC<UsersTableProps> = ({
   users,
   onDeleteUser,
+  onEditUser,
 }) => {
   // Format date to be more readable
   const formatDate = (dateString: string) => {
@@ -83,6 +86,16 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                 </TableCell>
                 <TableCell>{formatDate(user.createdAt)}</TableCell>
                 <TableCell align="right">
+                  <Tooltip title="Edit User">
+                    <IconButton
+                      onClick={() => onEditUser(user)}
+                      color="primary"
+                      size="small"
+                      sx={{ mr: 1 }}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                   <Tooltip title="Delete User">
                     <IconButton
                       onClick={() => onDeleteUser(user)}

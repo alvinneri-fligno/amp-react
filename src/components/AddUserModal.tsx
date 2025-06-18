@@ -16,7 +16,8 @@ import {
 interface AddUserModalProps {
   open: boolean;
   onClose: () => void;
-  onAddUser: (userData: NewUserData) => Promise<void>; // Make it async
+  onAddUser: (userData: NewUserData) => Promise<void>;
+  userToUpdate: any;
 }
 
 export interface NewUserData {
@@ -38,21 +39,22 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
   open,
   onClose,
   onAddUser,
+  userToUpdate,
 }) => {
   const [formData, setFormData] = useState<NewUserData>({
-    username: "",
-    firstName: "",
-    lastName: "",
-    role: "",
-    position: "",
-    company: "",
+    username: userToUpdate ? userToUpdate.username : "",
+    firstName: userToUpdate ? userToUpdate.firstName : "",
+    lastName: userToUpdate ? userToUpdate.lastName : "",
+    role: userToUpdate ? userToUpdate.role : "",
+    position: userToUpdate ? userToUpdate.companyPosition : "",
+    company: userToUpdate ? userToUpdate.company : "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Reset form when modal is opened or closed
-    if (!open) {
+    if (!open || !userToUpdate) {
       setFormData({
         username: "",
         firstName: "",
@@ -64,7 +66,18 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
       setError(null);
       setIsSubmitting(false);
     }
-  }, [open]);
+
+    if (userToUpdate) {
+      setFormData({
+        username: userToUpdate ? userToUpdate.username : "",
+        firstName: userToUpdate ? userToUpdate.firstName : "",
+        lastName: userToUpdate ? userToUpdate.lastName : "",
+        role: userToUpdate ? userToUpdate.role : "",
+        position: userToUpdate ? userToUpdate.companyPosition : "",
+        company: userToUpdate ? userToUpdate.company : "",
+      });
+    }
+  }, [open, userToUpdate]);
 
   const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -107,7 +120,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
     >
       <Box sx={modalStyle} component="form" onSubmit={handleSubmit}>
         <Typography id="add-user-modal-title" variant="h6" component="h2">
-          Add New User
+          {userToUpdate ? "Edit User" : "Add New User"}
         </Typography>
 
         <TextField
@@ -119,6 +132,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
           onChange={handleChange}
           fullWidth
           required
+          disabled={!!userToUpdate}
         />
 
         <TextField
@@ -201,7 +215,13 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
             Cancel
           </Button>
           <Button type="submit" variant="contained" disabled={isSubmitting}>
-            {isSubmitting ? <CircularProgress size={24} /> : "Add User"}
+            {isSubmitting ? (
+              <CircularProgress size={24} />
+            ) : userToUpdate ? (
+              "Update User"
+            ) : (
+              "Add User"
+            )}
           </Button>
         </Box>
       </Box>

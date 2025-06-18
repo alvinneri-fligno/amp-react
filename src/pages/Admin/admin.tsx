@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Container,
   Typography,
@@ -35,6 +35,7 @@ export const Admin = () => {
   const [error, setError] = useState<string | null>(null);
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [userToUpdate, setUserToUpdate] = useState<User | null>(null);
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] =
     useState(false);
   const fetchUsers = async () => {
@@ -77,6 +78,11 @@ export const Admin = () => {
   const openConfirmDeleteDialog = (user: User) => {
     setUserToDelete(user);
     setIsConfirmDeleteDialogOpen(true);
+  };
+
+  const openEditUserDialog = (user: User) => {
+    setUserToUpdate(user);
+    setIsAddUserModalOpen(true);
   };
 
   const closeConfirmDeleteDialog = () => {
@@ -133,11 +139,67 @@ export const Admin = () => {
     }
   };
 
+  const handleUpdateUser = async (userData: NewUserData) => {
+    if (!userToUpdate) return;
+
+    const token = Cookie.get("token");
+    if (!token) {
+      setError("Authentication token not found.");
+      closeConfirmDeleteDialog();
+      return;
+    }
+
+    try {
+      // Ensure your backend API is configured to handle this action
+      // and delete the user from DynamoDB based on the username.
+      const response = await axios.post(
+        `${apiPath}`,
+        {
+          action: "update-user",
+          username: userToUpdate?.username,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          role: userData.role,
+          position: userData.position,
+          company: userData.company,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data) {
+        // Adjust success condition based on your API's response
+        console.log("User deletion initiated successfully:", response.data);
+        fetchUsers(); // Refresh the user list
+        setIsAddUserModalOpen(false);
+      } else {
+        throw new Error(
+          response.data?.message ||
+            "Failed to delete user: No specific error message from API."
+        );
+      }
+    } catch (err: any) {
+      console.error("Failed to delete user:", err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "An unexpected error occurred while deleting the user."
+      );
+    } finally {
+      closeConfirmDeleteDialog();
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
 
   const handleOpenAddUserModal = () => {
+    setUserToUpdate(null);
     setIsAddUserModalOpen(true);
   };
 
@@ -199,6 +261,22 @@ export const Admin = () => {
     }
   };
 
+  const renderAddUserModal = useCallback(() => {
+    return (
+      <AddUserModal
+        open={isAddUserModalOpen}
+        onClose={handleCloseAddUserModal}
+        onAddUser={userToUpdate ? handleUpdateUser : handleAddUser}
+        userToUpdate={userToUpdate}
+      />
+    );
+  }, [
+    isAddUserModalOpen,
+    handleCloseAddUserModal,
+    handleAddUser,
+    userToUpdate,
+  ]);
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4 }}>
@@ -233,15 +311,12 @@ export const Admin = () => {
             <UsersTable
               users={users.length > 0 ? users : []}
               onDeleteUser={openConfirmDeleteDialog}
+              onEditUser={openEditUserDialog}
             />
           )}
         </Paper>
       </Box>
-      <AddUserModal
-        open={isAddUserModalOpen}
-        onClose={handleCloseAddUserModal}
-        onAddUser={handleAddUser}
-      />
+      {renderAddUserModal()}
       {userToDelete && (
         <Dialog
           open={isConfirmDeleteDialogOpen}
