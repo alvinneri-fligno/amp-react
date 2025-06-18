@@ -28,6 +28,10 @@ interface User {
 }
 
 export const Admin = () => {
+  const apiPath = import.meta.env.DEV
+    ? "/api/development/mandown_authentication"
+    : `${import.meta.env.VITE_API_URL}/development/mandown_authentication`;
+
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +51,7 @@ export const Admin = () => {
       }
 
       const response = await axios.post(
-        "/api/development/mandown_authentication",
+        `${apiPath}`,
         {
           action: "get-users",
         },
@@ -96,7 +100,7 @@ export const Admin = () => {
       // Ensure your backend API is configured to handle this action
       // and delete the user from DynamoDB based on the username.
       const response = await axios.post(
-        "/api/development/mandown_authentication",
+        `${apiPath}`,
         {
           action: "delete-user", // This action should trigger deletion in your backend
           username: userToDelete.username, // Or any other unique identifier your backend uses
@@ -162,7 +166,7 @@ export const Admin = () => {
 
     try {
       const response = await axios.post(
-        "/api/development/mandown_authentication",
+        `${apiPath}`,
         {
           action: "register",
           ...newUserData,

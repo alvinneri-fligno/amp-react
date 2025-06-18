@@ -19,12 +19,16 @@ export const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const apiPath = import.meta.env.DEV
+    ? "/api/development/mandown_authentication"
+    : `${import.meta.env.VITE_API_URL}/development/mandown_authentication`;
+
   const handleLogin = async () => {
     setLoading(true);
     setError(null);
     try {
       const response = await axios.post(
-        "/api/development/mandown_authentication",
+        `${apiPath}`,
         {
           action: "admin",
           username: email,

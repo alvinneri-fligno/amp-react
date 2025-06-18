@@ -6,17 +6,18 @@ frontend:
         - npm ci
     build:
       commands:
+        - echo "VITE_API_URL=https://yri4pwcho9.execute-api.ap-southeast-2.amazonaws.com" >> .env
         - npm run build
   artifacts:
     baseDirectory: dist
     files:
       - '**/*'
   customHeaders:
-    - pattern: '/api/**'
+    - pattern: '**/*'
       headers:
-        - key: 'X-Frame-Options'
-          value: 'SAMEORIGIN'
-  proxies:
-    - path: '/api'
-      target: 'https://yri4pwcho9.execute-api.ap-southeast-2.amazonaws.com'
-      status: '200'
+        - key: 'Access-Control-Allow-Origin'
+          value: '*'
+        - key: 'Access-Control-Allow-Headers'
+          value: '*'
+        - key: 'Access-Control-Allow-Methods'
+          value: 'GET,POST,PUT,DELETE,OPTIONS'
