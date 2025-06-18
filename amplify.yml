@@ -3,7 +3,7 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm ci
+        - npm ci --cache .npm --prefer-offline
     build:
       commands:
         - npm run build
@@ -11,6 +11,9 @@ frontend:
     baseDirectory: dist
     files:
       - '**/*'
+  cache:
+    paths:
+      - .npm/**/*
   customHeaders:
     - pattern: '**/*'
       headers:
@@ -18,5 +21,5 @@ frontend:
           value: '*'
   proxies:
     - path: '/api/*'
-      target: 'https://yri4pwcho9.execute-api.ap-southeast-2.amazonaws.com/*'
+      target: 'https://yri4pwcho9.execute-api.ap-southeast-2.amazonaws.com'
       status: '200'
