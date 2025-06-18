@@ -12,6 +12,7 @@ import {
   MenuItem,
   InputLabel,
 } from "@mui/material";
+import { isValidEmail } from "../pages/Login/login";
 
 interface AddUserModalProps {
   open: boolean;
@@ -98,6 +99,12 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
       formData.role !== "admin"
     ) {
       setError("All fields are required.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!isValidEmail(formData.username)) {
+      setError("Please enter a valid email address.");
       setIsSubmitting(false);
       return;
     }

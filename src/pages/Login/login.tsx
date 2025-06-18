@@ -12,6 +12,11 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import logoImage from "../../../src/assets/logo.png";
 
+export const isValidEmail = (email: string) => {
+  // Basic email validation regex
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
 export const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -24,6 +29,19 @@ export const Login = () => {
   const handleLogin = async () => {
     setLoading(true);
     setError(null);
+
+    if (!email || !password) {
+      setError("Please input email and password.");
+      setLoading(false);
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setError("Please input a valid email.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await axios.post(
         `${apiPath}`,
@@ -116,6 +134,11 @@ export const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          {error && (
+            <Typography color="error" sx={{ mt: 2 }}>
+              {error}
+            </Typography>
+          )}
           <Button
             disabled={loading}
             type="submit"
