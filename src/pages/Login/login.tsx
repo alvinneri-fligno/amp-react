@@ -10,6 +10,7 @@ import {
 import Cookie from "js-cookie";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import logoImage from "../../../src/assets/logo.png";
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -66,7 +67,7 @@ export const Login = () => {
         }}
       >
         <Avatar
-          src="./src/assets/logo.png"
+          src={logoImage}
           alt="Logo"
           sx={{ m: 1, width: 150, height: 150 }}
           slotProps={{
