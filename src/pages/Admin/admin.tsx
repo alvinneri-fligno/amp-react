@@ -28,9 +28,7 @@ interface User {
 }
 
 export const Admin = () => {
-  const apiPath = import.meta.env.DEV
-    ? "/api/development/mandown_authentication"
-    : `${import.meta.env.VITE_API_URL}/development/mandown_authentication`;
+  const apiPath = "/api/development/mandown_authentication";
 
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
